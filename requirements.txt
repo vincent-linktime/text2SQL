@@ -1,0 +1,5 @@
+nltk
+openai
+rapidfuzz
+sql_metadata
+tqdm

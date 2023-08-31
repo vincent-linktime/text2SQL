@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# test directories
+database
+generate_datasets
+third_party
+
 # C extensions
 *.so
 
