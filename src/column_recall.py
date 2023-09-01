@@ -82,7 +82,7 @@ def extract_fks(strings):
     return fks
 
 
-def column_sc(tabs_cols_all, tabs_cols_ori, fk_ori):
+def column_sc(tabs_cols_all, tabs_cols_ori, fk_ori, add_fk):
     candidates = {}
     results = {}
     for key in tabs_cols_ori:
@@ -120,7 +120,7 @@ def column_sc(tabs_cols_all, tabs_cols_ori, fk_ori):
         else:
             results[tab] = []
 
-    if opt.add_fk:
+    if add_fk:
         fk = extract_fks(fk_ori)
         for tab, cols in fk.items():
             if tab in results:
@@ -163,16 +163,10 @@ Explain why you choose each column.
 
 '''
 
-if __name__ == "__main__":
-    opt = parse_option()
-    print(opt)
-    with open(opt.input_recalled_tables_path) as f:
+def recall_column(input_recalled_tables_path, output_recalled_columns_path, add_fk, sc_num):
+    with open(input_recalled_tables_path) as f:
         data_all = json.load(f)
     res = []
-    if opt.self_consistent:
-        sc_num = opt.n
-    else:
-        sc_num = 1
     for i, data in enumerate(tqdm(data_all)):
         schema = generate_schema(data)
         prompt = instruction + 'Schema:\n' + schema
@@ -187,9 +181,17 @@ if __name__ == "__main__":
         tab_col_ori = {}
         for table in data['db_schema']:
             tab_col_ori[table['table_name_original'].lower()] = table['column_names_original']
-        tabs_cols = column_sc(tabs_cols_all, tab_col_ori, data['fk'])
+        tabs_cols = column_sc(tabs_cols_all, tab_col_ori, data['fk'], add_fk)
         info = info_generate(tabs_cols, data)
         res.append(info)
         # print(res)
-        with open(opt.output_recalled_columns_path, 'w') as f:
+        with open(output_recalled_columns_path, 'w') as f:
             json.dump(res, f, indent=2)
+
+if __name__ == "__main__":
+    opt = parse_option()
+    sc_num = 1
+    if opt.self_consistent:
+        sc_num = opt.n        
+    recall_column(opt.input_recalled_tables_path, opt.output_recalled_columns_path, opt.add_fk, sc_num)
+

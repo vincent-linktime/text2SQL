@@ -10,11 +10,8 @@ def parse_option():
 
     return opt
 
-
-if __name__ == "__main__":
-    opt = parse_option()
-    print(opt)
-    with open(opt.input_dataset_path) as f:
+def generate_prompt(input_dataset_path, output_dataset_path):
+    with open(input_dataset_path) as f:
         data_all = json.load(f)
     temp = []
     for id, data in enumerate(data_all):
@@ -36,6 +33,10 @@ if __name__ == "__main__":
         for fk in data['fk']:
             data['input_sequence'] += '\n# ' + fk
         data['input_sequence'] += '\n#\n### ' + data['question'] + '\nSELECT'
-    with open(opt.output_dataset_path, 'w') as f:
+    with open(output_dataset_path, 'w') as f:
         json.dump(data_all, f, indent=2)
 
+
+if __name__ == "__main__":
+    opt = parse_option()
+    generate_prompt(opt.input_dataset_path, opt.output_dataset_path)

@@ -41,7 +41,7 @@ def get_db_contents(question, table_name_original, column_names_original, db_id,
     return matched_contents
 
 
-def get_db_schemas(all_db_infos, opt=None):
+def get_db_schemas(all_db_infos):
     db_schemas = {}
 
     for db in all_db_infos:
@@ -259,11 +259,11 @@ def isFloat(string):
         return True
 
 
-def main(opt):
-    dataset = json.load(open(opt.input_dataset_path))
-    all_db_infos = json.load(open(opt.table_path))
+def preprocess(input_dataset_path, output_dataset_path, table_path, db_path):
+    dataset = json.load(open(input_dataset_path))
+    all_db_infos = json.load(open(table_path))
     natsql_dataset = [None for _ in range(len(dataset))]
-    db_schemas = get_db_schemas(all_db_infos, opt)
+    db_schemas = get_db_schemas(all_db_infos)
     preprocessed_dataset = []
 
     for natsql_data, data in tqdm(zip(natsql_dataset, dataset)):
@@ -301,7 +301,7 @@ def main(opt):
                 table["table_name_original"],
                 table["column_names_original"],
                 db_id,
-                opt.db_path
+                db_path
             )
 
             preprocessed_data["db_schema"].append({
@@ -331,11 +331,11 @@ def main(opt):
 
         preprocessed_dataset.append(preprocessed_data)
 
-    with open(opt.output_dataset_path, "w") as f:
+    with open(output_dataset_path, "w") as f:
         preprocessed_dataset_str = json.dumps(preprocessed_dataset, indent=2)
         f.write(preprocessed_dataset_str)
 
 
 if __name__ == "__main__":
     opt = parse_option()
-    main(opt)
+    preprocess(opt.input_dataset_path, opt.output_dataset_path, opt.table_path, opt.db_path)

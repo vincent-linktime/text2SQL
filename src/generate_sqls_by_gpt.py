@@ -111,18 +111,15 @@ def is_valid(sql, db_path):
     else:
         return 1
 
-
-if __name__ == '__main__':
-    opt = parse_option()
-    print(opt)
-    with open(opt.input_dataset_path) as f:
+def generate_query(input_dataset_path, output_dataset_path, sc_nm, db_dir, self_consistent):
+    with open(input_dataset_path) as f:
         data = json.load(f)
     results = []
     p_sql_final = []
-    if not opt.self_consistent:
+    if not self_consistent:
         for i, item in enumerate(data):
-            print("id", i)
-            db_dir = opt.db_dir + '/' + item['db_id'] + '/' + item['db_id'] + '.sqlite'
+            #print("id", i)
+            db_dir = db_dir + '/' + item['db_id'] + '/' + item['db_id'] + '.sqlite'
             messages = []
             messages = chat_prompt.copy()
             input = item['input_sequence']
@@ -136,19 +133,19 @@ if __name__ == '__main__':
                 print(f"fix_select_column err, p_sql: {p_sql}")
                 pass
             p_sql = p_sql.replace("> =", ">=").replace("< =", "<=").replace("! =", "!=")
-            print(f'p_sql: {p_sql}')
+            #print(f'p_sql: {p_sql}')
             p_sql_final.append(p_sql)
             print(p_sql_final)
     else:
         for i, item in enumerate(tqdm(data)):
-            db_dir = opt.db_dir + '/' + item['db_id'] + '/' + item['db_id'] + '.sqlite'
+            db_dir = db_dir + '/' + item['db_id'] + '/' + item['db_id'] + '.sqlite'
             p_sqls = []
             for j in range(5):
                 messages = []
                 messages = chat_prompt.copy()
                 input = item['input_sequence']
                 messages.append({"role": "user", "content": input})
-                reply = generate_reply(messages, opt.n)
+                reply = generate_reply(messages, sc_nm)
                 if reply is None:
                     pass
                 p_sqls = reply
@@ -182,7 +179,12 @@ if __name__ == '__main__':
                 result['p_sqls'].append(sql)
             results.append(result)
             # time.sleep(1)
-        p_sql_final = get_sqls(results, opt.n, opt.db_dir)
-    with open(opt.output_dataset_path, 'w') as f:
+        p_sql_final = get_sqls(results, sc_nm, db_dir)
+    with open(output_dataset_path, 'w') as f:
         for sql in p_sql_final:
             print(sql, file=f)
+
+
+if __name__ == '__main__':
+    opt = parse_option()
+    generate_query(opt.input_dataset_path, opt.output_dataset_path, opt.n, opt.db_dir, opt.self_consistent)

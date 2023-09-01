@@ -103,16 +103,10 @@ instruction = """Given the database schema and question, perform the following a
 
 """
 
-if __name__ == "__main__":
-    opt = parse_option()
-    print(opt)
-    with open(opt.input_dataset_path) as f:
+def recall_table(input_dataset_path, output_recalled_tables_path, sc_num):
+    with open(input_dataset_path) as f:
         data_all = json.load(f)
     res = []
-    if opt.self_consistent:
-        sc_num = opt.n
-    else:
-        sc_num = 1
     for i, data in enumerate(tqdm(data_all)):
         schema = generate_schema(data)
         prompt = instruction + "Schema:\n" + schema + "\n"
@@ -126,5 +120,12 @@ if __name__ == "__main__":
         tables = table_sc(tables_all, tables_ori)
         info = info_generate(tables, data)
         res.append(info)
-    with open(opt.output_recalled_tables_path, 'w') as f:
+    with open(output_recalled_tables_path, 'w') as f:
         json.dump(res, f, indent=2)
+
+if __name__ == "__main__":
+    opt = parse_option()
+    sc_num = 1
+    if opt.self_consistent:
+        sc_num = opt.n
+    recall_table(opt.input_dataset_path, opt.output_recalled_tables_path, sc_num)

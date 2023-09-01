@@ -1,4 +1,4 @@
-import openai, os
+import openai, os, time
 
 openai.api_key = os.environ["OPENAI_KEY"]
 
