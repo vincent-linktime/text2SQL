@@ -1,3 +1,4 @@
+gradio
 nltk
 openai
 rapidfuzz

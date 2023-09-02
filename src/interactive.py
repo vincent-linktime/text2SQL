@@ -15,16 +15,13 @@ def parse_option():
 
     return opt
 
-def create_dataset(output_question_path):
-    question = input("Enter your question: ")
-    db = input("Enter the database: ")
+def create_dataset(question, db, output_question_path):
     entry = [{"db_id":db, "question": question}]
     with open(output_question_path, "w") as outfile:
         outfile.write(json.dumps(entry, indent=4))
 
-if __name__ == "__main__":
-    opt = parse_option()
-    all_db_infos = json.load(open(opt.table_path))
+def text2sql(question, db, table_path, db_path, update_progress_function=None):
+    all_db_infos = json.load(open(table_path))
     db_schemas = get_db_schemas(all_db_infos)
     #print("------- Database information ---------")
     #print(json.dumps(db_schemas, indent=4))
@@ -37,19 +34,47 @@ if __name__ == "__main__":
     output_query_path="./generate_datasets/predicted_sql.txt"
 
     start_time = time.time()
-    create_dataset(output_question_path)
-    print("------- preprocessing ---------")
-    preprocess(output_question_path, output_dataset_path, opt.table_path, opt.db_path)
-    print("------- recall tables... ---------")
-    recall_table(output_dataset_path, output_recalled_tables_path, 5)
-    print("------- recall columns... ---------")
-    recall_column(output_recalled_tables_path, output_recalled_columns_path, True, 5)
-    print("------- generate prompt... ---------")
-    generate_prompt(output_recalled_columns_path, processed_dataset_path)
-    print("------- generate SQL... ---------")
-    generate_query(processed_dataset_path, output_query_path, 10, opt.db_path, False)
-    print("--- processing time: %s seconds ---" % (time.time() - start_time))
+    create_dataset(question, db, output_question_path)
     
-    
-    
+    msg = "------- preprocessing ---------"
+    print(msg)
+    if update_progress_function is not None:
+        update_progress_function(msg)
+    preprocess(output_question_path, output_dataset_path, table_path, db_path)
 
+    msg = "------- recall tables... ---------"
+    print(msg)
+    if update_progress_function is not None:
+        update_progress_function(msg)
+    recall_table(output_dataset_path, output_recalled_tables_path, 5)
+    
+    msg = "------- recall columns... ---------"
+    print(msg)
+    recall_column(output_recalled_tables_path, output_recalled_columns_path, True, 5)
+    if update_progress_function is not None:
+        update_progress_function(msg)
+
+    msg = "------- generate prompt... ---------"
+    print(msg)
+    generate_prompt(output_recalled_columns_path, processed_dataset_path)
+    if update_progress_function is not None:
+        update_progress_function(msg)
+
+    msg = "------- generate SQL... ---------"
+    print(msg)
+    if update_progress_function is not None:
+        update_progress_function(msg)
+    rtn_list = generate_query(processed_dataset_path, output_query_path, 10, db_path, False)
+
+    msg = "--- processing time: %s seconds ---" % (time.time() - start_time)
+    print(msg)
+    if update_progress_function is not None:
+        update_progress_function(msg)
+
+    return rtn_list
+
+if __name__ == "__main__":
+    opt = parse_option()
+    question = input("Enter your question: ")
+    db = input("Enter the database: ")
+    text2sql(question, db, opt.table_path, opt.db_path)

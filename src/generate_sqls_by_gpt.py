@@ -183,7 +183,7 @@ def generate_query(input_dataset_path, output_dataset_path, sc_nm, db_dir, self_
     with open(output_dataset_path, 'w') as f:
         for sql in p_sql_final:
             print(sql, file=f)
-
+    return p_sql_final
 
 if __name__ == '__main__':
     opt = parse_option()
