@@ -20,11 +20,9 @@ def create_dataset(question, db, output_question_path):
     with open(output_question_path, "w") as outfile:
         outfile.write(json.dumps(entry, indent=4))
 
-def text2sql(question, db, table_path, db_path, update_progress_function=None):
+def text2sql(question, db, table_path, db_path):
     all_db_infos = json.load(open(table_path))
     db_schemas = get_db_schemas(all_db_infos)
-    #print("------- Database information ---------")
-    #print(json.dumps(db_schemas, indent=4))
 
     output_question_path = "./data/spider/test.json"
     output_dataset_path = "./generate_datasets/preprocessed_data.json"
@@ -38,38 +36,26 @@ def text2sql(question, db, table_path, db_path, update_progress_function=None):
     
     msg = "------- preprocessing ---------"
     print(msg)
-    if update_progress_function is not None:
-        update_progress_function(msg)
     preprocess(output_question_path, output_dataset_path, table_path, db_path)
 
     msg = "------- recall tables... ---------"
     print(msg)
-    if update_progress_function is not None:
-        update_progress_function(msg)
     recall_table(output_dataset_path, output_recalled_tables_path, 5)
     
     msg = "------- recall columns... ---------"
     print(msg)
     recall_column(output_recalled_tables_path, output_recalled_columns_path, True, 5)
-    if update_progress_function is not None:
-        update_progress_function(msg)
 
     msg = "------- generate prompt... ---------"
     print(msg)
     generate_prompt(output_recalled_columns_path, processed_dataset_path)
-    if update_progress_function is not None:
-        update_progress_function(msg)
 
     msg = "------- generate SQL... ---------"
     print(msg)
-    if update_progress_function is not None:
-        update_progress_function(msg)
     rtn_list = generate_query(processed_dataset_path, output_query_path, 10, db_path, False)
 
     msg = "--- processing time: %s seconds ---" % (time.time() - start_time)
     print(msg)
-    if update_progress_function is not None:
-        update_progress_function(msg)
 
     return rtn_list
 

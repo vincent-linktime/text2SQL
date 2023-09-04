@@ -1,5 +1,10 @@
 [
    {
+      "sample_questions": [
+         "How many singers do we have?",
+         "What is the average, minimum, and maximum age of all singers from France?",
+         "For each stadium, how many concerts play there?"
+      ],
       "column_names": [
          [
             -1,
@@ -238,6 +243,11 @@
          "singer_in_concert"
       ]
    }, {
+      "sample_questions": [
+         "What is the name of the student who has the highest total credits in the History department?",
+         "What are the titles for courses with two prerequisites?",
+         "How many courses that do not have prerequisite?"
+      ],
       "column_names": [
          [
             -1,

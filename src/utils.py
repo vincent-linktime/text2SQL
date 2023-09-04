@@ -49,13 +49,13 @@ def openai_completion(input, sc_num):
 
 def convert_table_info(original_json):
     # Initialize an empty list to store the reformatted data
-    reformatted_data = []
+    reformatted_data = {}
 
     # Iterate through the original JSON data and reformat it
     for item in original_json:
         table_info = {
-            "db_id": item["db_id"],
-            "tables": []
+            "tables": [],
+            "sample_question": item["sample_questions"]
         }
 
         # Create a mapping from table index to table name
@@ -78,21 +78,19 @@ def convert_table_info(original_json):
             if table_name_original not in table_columns:
                 table_columns[table_name_original] = []
 
-            table_columns[table_name_original].append({
-                "column_name_original": column_name_original,
-                "column_type": column_type
-            })
+            table_columns[table_name_original].append("(" + column_name_original \
+                + "," + column_type +")")
             table_columns_info[i] = table_name_original + "." + column_name_original
 
         # Convert the table_columns dictionary to the desired format
         for table_name, columns in table_columns.items():
             table_info["tables"].append({
-                "table_names_original": table_name,
+                "table": table_name,
                 "columns": columns
             })
 
         # Extract primary keys
-        primary_keys = [{"pk": table_columns_info[i]}
+        primary_keys = [table_columns_info[i]
                         for i in table_columns_info.keys()
                         if i in item["primary_keys"]]
         table_info["primary_keys"] = primary_keys
@@ -100,9 +98,9 @@ def convert_table_info(original_json):
         # Extract foreign keys
         foreign_keys = []
         for (i, i_ref) in item["foreign_keys"]:
-            foreign_keys.append({"fk": table_columns_info[i] + "=" + table_columns_info[i_ref]})
+            foreign_keys.append(table_columns_info[i] + "=" + table_columns_info[i_ref])
         table_info["foreign_keys"] = foreign_keys
 
-        reformatted_data.append(table_info)
-        
+        reformatted_data[item["db_id"]] = table_info
+
     return reformatted_data

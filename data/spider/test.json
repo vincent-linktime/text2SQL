@@ -1,6 +1,6 @@
 [
     {
         "db_id": "concert_singer",
-        "question": "how many singers are older than 60? "
+        "question": "What is the average, minimum, and maximum age of all singers from France?"
     }
 ]
