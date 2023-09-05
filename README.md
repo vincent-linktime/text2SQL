@@ -19,6 +19,7 @@ cd ..
 
 python third_party/test-suite-sql-eval/evaluation.py --gold data/spider/test_gold.sql --pred generate_datasets/predicted_sql.txt --db database --table data/spider/tables.json --etype exec 
 ```
+You can replace test_gold.sql, predicted_sql.txt, tables.json with your own files.
 
 ### Run Web Demo
 ```
