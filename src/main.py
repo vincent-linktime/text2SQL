@@ -67,7 +67,7 @@ with gr.Blocks() as demo:
     def on_submit_click(user_input, db_id_dropdown):
         # search knowledge base to find questions with 95% similarity 
         start_time = time.time()
-        sql_stmt = kb.search_data(user_input, db_id_dropdown, 0.95)
+        sql_stmt = kb.search_data(user_input, db_id_dropdown, 0.90)
         if sql_stmt is None:
             
 

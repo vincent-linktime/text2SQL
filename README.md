@@ -41,9 +41,9 @@ python src/main.py
 ```
 
 ### Knowledge Base
-To enhance the efficiency of the web-based text-to-SQL process, consider augmenting it with a knowledge base containing verified question-SQL pairs. This knowledge base should follow the format specified in data/QA_SQL.json.
+To optimize the web-based text-to-SQL process, incorporate a knowledge base featuring validated question-SQL pairs adhering to the format in data/QA_SQL.json. When a user poses a question, the system will search this knowledge base for similar questions, based on a 90% similarity threshold, and return the corresponding SQL query from the most closely matching question.
 
-The web-based process also generates a knowledge base file, saved as generate_datasets/QA_SQL.json.
+The web-based process additionally produces a knowledge base file, which archives historical question-SQL pairs in generate_datasets/QA_SQL.json.
 
 ### References
 [C3SQLC3: Zero-shot Text-to-SQL with ChatGPT](https://arxiv.org/pdf/2307.07306.pdf)
