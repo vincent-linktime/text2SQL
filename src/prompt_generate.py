@@ -22,11 +22,6 @@ def generate_prompt(input_dataset_path, output_dataset_path):
             schema += '# ' + tab + ' ( '
             for i, col in enumerate(cols):
                 schema += col
-                if data['db_contents'][tab][i]:
-                    schema += '("'
-                    for value in data['db_contents'][tab][i]:
-                        schema += value + '", "'
-                    schema = schema[:-4] + '")'
                 schema += ', '
             schema = schema[:-2] + ' )\n'
         data['input_sequence'] += schema[:-1]

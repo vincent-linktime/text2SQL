@@ -2,5 +2,8 @@
     {
         "db_id": "concert_singer",
         "question": "What is the average, minimum, and maximum age of all singers from France?"
+    },{
+        "db_id": "college_2",
+        "question": "What are the titles for courses with two prerequisites?"
     }
 ]

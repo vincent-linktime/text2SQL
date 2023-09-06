@@ -9,8 +9,6 @@ def parse_option():
     parser = argparse.ArgumentParser("")
 
     parser.add_argument('--table_path', type=str, default="./data/spider/tables.json")
-    parser.add_argument('--db_path', type=str, default="./database",
-                        help="the filepath of database.")
     opt = parser.parse_args()
 
     return opt
@@ -20,11 +18,11 @@ def create_dataset(question, db, output_question_path):
     with open(output_question_path, "w") as outfile:
         outfile.write(json.dumps(entry, indent=4))
 
-def text2sql(question, db, table_path, db_path):
+def text2sql(question, db, table_path):
     all_db_infos = json.load(open(table_path))
     db_schemas = get_db_schemas(all_db_infos)
 
-    output_question_path = "./data/spider/test.json"
+    output_question_path = "./generate_datasets/question.json"
     output_dataset_path = "./generate_datasets/preprocessed_data.json"
     output_recalled_tables_path = "./generate_datasets/table_recall.json"
     output_recalled_columns_path = "./generate_datasets/column_recall.json"
@@ -36,7 +34,7 @@ def text2sql(question, db, table_path, db_path):
     
     msg = "------- preprocessing ---------"
     print(msg)
-    preprocess(output_question_path, output_dataset_path, table_path, db_path)
+    preprocess(output_question_path, output_dataset_path, table_path)
 
     msg = "------- recall tables... ---------"
     print(msg)
@@ -52,7 +50,7 @@ def text2sql(question, db, table_path, db_path):
 
     msg = "------- generate SQL... ---------"
     print(msg)
-    rtn_list = generate_query(processed_dataset_path, output_query_path, 10, db_path, False)
+    rtn_list = generate_query(processed_dataset_path, output_query_path)
 
     msg = "--- processing time: %s seconds ---" % (time.time() - start_time)
     print(msg)
@@ -63,4 +61,4 @@ if __name__ == "__main__":
     opt = parse_option()
     question = input("Enter your question: ")
     db = input("Enter the database: ")
-    text2sql(question, db, opt.table_path, opt.db_path)
+    text2sql(question, db, opt.table_path)

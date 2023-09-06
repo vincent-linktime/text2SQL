@@ -6,7 +6,6 @@ from sql_post_process import fix_select_column
 import re
 import os
 import sqlite3
-from get_selfconsistent_output import get_sqls
 from tqdm import tqdm
 from utils import openai_completion
 
@@ -44,11 +43,7 @@ Gold SQL should be: select A from X where award = 'B' intersect select A from X 
 def parse_option():
     parser = argparse.ArgumentParser("command line arguments for generate sqls")
     parser.add_argument("--input_dataset_path", type=str)
-    parser.add_argument("--self_consistent", type=bool, default=False)
-    parser.add_argument("--n", type=int, default=10,
-                        help="Size of self-consistent set")
     parser.add_argument("--output_dataset_path", type=str)
-    parser.add_argument("--db_dir", type=str, default="./data/database")
 
     opt = parser.parse_args()
 
@@ -111,75 +106,31 @@ def is_valid(sql, db_path):
     else:
         return 1
 
-def generate_query(input_dataset_path, output_dataset_path, sc_nm, db_dir, self_consistent):
+def generate_query(input_dataset_path, output_dataset_path):
     with open(input_dataset_path) as f:
         data = json.load(f)
     results = []
     p_sql_final = []
-    if not self_consistent:
-        for i, item in enumerate(data):
-            #print("id", i)
-            db_dir = db_dir + '/' + item['db_id'] + '/' + item['db_id'] + '.sqlite'
-            messages = []
-            messages = chat_prompt.copy()
-            input = item['input_sequence']
-            messages.append({"role": "user", "content": input})
-            p_sql = generate_reply(messages, 1)[0]
-            p_sql = 'SELECT ' + p_sql
-            p_sql = p_sql.replace("SELECT SELECT", "SELECT")
-            try:
-                p_sql = fix_select_column(p_sql)
-            except:
-                print(f"fix_select_column err, p_sql: {p_sql}")
-                pass
-            p_sql = p_sql.replace("> =", ">=").replace("< =", "<=").replace("! =", "!=")
-            #print(f'p_sql: {p_sql}')
-            p_sql_final.append(p_sql)
-            print(p_sql_final)
-    else:
-        for i, item in enumerate(tqdm(data)):
-            db_dir = db_dir + '/' + item['db_id'] + '/' + item['db_id'] + '.sqlite'
-            p_sqls = []
-            for j in range(5):
-                messages = []
-                messages = chat_prompt.copy()
-                input = item['input_sequence']
-                messages.append({"role": "user", "content": input})
-                reply = generate_reply(messages, sc_nm)
-                if reply is None:
-                    pass
-                p_sqls = reply
-                temp = []
-                for p_sql in p_sqls:
-                    p_sql = 'SELECT ' + p_sql
-                    p_sql = p_sql.replace("SELECT SELECT", "SELECT")
-                    try:
-                        p_sql = fix_select_column(p_sql)
-                    except:
-                        print(f"fix_select_column err, p_sql: {p_sql}")
-                        pass
-                    p_sql = p_sql.replace("> =", ">=").replace("< =", "<=").replace("! =", "!=")
-                    p_sql = p_sql.replace("\n", " ")
-                    while "  " in p_sql:
-                        p_sql = p_sql.replace("  ", " ")
-                    temp.append(p_sql)
-                p_sqls = temp
-                if is_valid(p_sqls[0], db_dir):
-                    break
-                else:
-                    print(f're_id: {j} p_sql: {p_sqls[0]} exec error...')
-                    time.sleep(0.5)
-                    if j < 4:
-                        print(f'generate again')
-            result = {}
-            result['db_id'] = item['db_id']
-            result['question'] = item['question']
-            result['p_sqls'] = []
-            for sql in p_sqls:
-                result['p_sqls'].append(sql)
-            results.append(result)
-            # time.sleep(1)
-        p_sql_final = get_sqls(results, sc_nm, db_dir)
+
+    for i, item in enumerate(data):
+        #print("id", i)
+        messages = []
+        messages = chat_prompt.copy()
+        input = item['input_sequence']
+        messages.append({"role": "user", "content": input})
+        p_sql = generate_reply(messages, 1)[0]
+        p_sql = 'SELECT ' + p_sql
+        p_sql = p_sql.replace("SELECT SELECT", "SELECT")
+        try:
+            p_sql = fix_select_column(p_sql)
+        except:
+            print(f"fix_select_column err, p_sql: {p_sql}")
+            pass
+        p_sql = p_sql.replace("> =", ">=").replace("< =", "<=").replace("! =", "!=")
+        #print(f'p_sql: {p_sql}')
+        p_sql_final.append(p_sql)
+    print(p_sql_final)
+
     with open(output_dataset_path, 'w') as f:
         for sql in p_sql_final:
             print(sql, file=f)
@@ -187,4 +138,4 @@ def generate_query(input_dataset_path, output_dataset_path, sc_nm, db_dir, self_
 
 if __name__ == '__main__':
     opt = parse_option()
-    generate_query(opt.input_dataset_path, opt.output_dataset_path, opt.n, opt.db_dir, opt.self_consistent)
+    generate_query(opt.input_dataset_path, opt.output_dataset_path)

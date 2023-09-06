@@ -46,11 +46,6 @@ def generate_schema(data):
         schema += '# ' + table['table_name_original'] + ' ( '
         for i, column in enumerate(table['column_names_original']):
             schema += column
-            if table['db_contents'][i]:
-                schema += ' ( '
-                for value in table['db_contents'][i]:
-                    schema += value + ', '
-                schema = schema[:-2] + ' )'
             schema += ', '
         schema = schema[:-2] + ' )\n'
     return schema

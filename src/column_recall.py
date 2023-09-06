@@ -45,11 +45,6 @@ def generate_schema(data):
         schema += '# ' + table['table_name_original'] + ' ( '
         for i, column in enumerate(table['column_names_original']):
             schema += column
-            if table['db_contents'][i]:
-                schema += ' ( '
-                for value in table['db_contents'][i]:
-                    schema += value + ', '
-                schema = schema[:-2] + ' )'
             schema += ', '
         schema = schema[:-2] + ' )\n'
     return schema
@@ -136,17 +131,6 @@ def info_generate(tabs_cols, data):
     info['question'] = data['question']
     info['schema'] = tabs_cols
     info['fk'] = data['fk']
-    info['db_contents'] = {}
-    for tab, cols in tabs_cols.items():
-        values = []
-        for tab_ori in data['db_schema']:
-            if tab == tab_ori['table_name_original'].lower():
-                cols_ori = [item.lower() for item in tab_ori['column_names_original']]
-                for i, col in enumerate(cols):
-                    index = cols_ori.index(col)
-                    values.append(tab_ori['db_contents'][index])
-                break
-        info['db_contents'][tab] = values
     return info
 
 

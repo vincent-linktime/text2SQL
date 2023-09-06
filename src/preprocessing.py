@@ -18,27 +18,9 @@ def parse_option():
     parser.add_argument('--input_dataset_path', type=str, default="./data/spider/test.json")
     parser.add_argument('--output_dataset_path', type=str, default="./data/pre-processing/preprocessed_dataset.json",
                         help="the filepath of preprocessed dataset.")
-    parser.add_argument('--db_path', type=str, default="./data/spider/database",
-                        help="the filepath of database.")
     opt = parser.parse_args()
 
     return opt
-
-
-def get_db_contents(question, table_name_original, column_names_original, db_id, db_path):
-    matched_contents = []
-    # extract matched contents for each column
-    for column_name_original in column_names_original:
-        matches = get_database_matches(
-            question,
-            table_name_original,
-            column_name_original,
-            db_path + "/{}/{}.sqlite".format(db_id, db_id)
-        )
-        matches = sorted(matches)
-        matched_contents.append(matches)
-
-    return matched_contents
 
 
 def get_db_schemas(all_db_infos):
@@ -259,7 +241,7 @@ def isFloat(string):
         return True
 
 
-def preprocess(input_dataset_path, output_dataset_path, table_path, db_path):
+def preprocess(input_dataset_path, output_dataset_path, table_path):
     dataset = json.load(open(input_dataset_path))
     all_db_infos = json.load(open(table_path))
     natsql_dataset = [None for _ in range(len(dataset))]
@@ -296,21 +278,12 @@ def preprocess(input_dataset_path, output_dataset_path, table_path, db_path):
 
         # add database information (including table name, column name, ..., table_labels, and column labels)
         for table in db_schemas[db_id]["schema_items"]:
-            db_contents = get_db_contents(
-                question,
-                table["table_name_original"],
-                table["column_names_original"],
-                db_id,
-                db_path
-            )
-
             preprocessed_data["db_schema"].append({
                 "table_name_original": table["table_name_original"],
                 "table_name": table["table_name"],
                 "column_names": table["column_names"],
                 "column_names_original": table["column_names_original"],
-                "column_types": table["column_types"],
-                "db_contents": db_contents
+                "column_types": table["column_types"]
             })
 
             # extract table and column classification labels
@@ -338,4 +311,4 @@ def preprocess(input_dataset_path, output_dataset_path, table_path, db_path):
 
 if __name__ == "__main__":
     opt = parse_option()
-    preprocess(opt.input_dataset_path, opt.output_dataset_path, opt.table_path, opt.db_path)
+    preprocess(opt.input_dataset_path, opt.output_dataset_path, opt.table_path)

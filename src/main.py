@@ -7,7 +7,6 @@ def reset_user_input():
     return gr.update(value='')
 
 TABLE_INFO_PATH = "./data/spider/tables.json"
-DB_PATH = "./database"
 
 with gr.Blocks() as demo:
     # Function to read JSON file and extract data by db_id
@@ -56,7 +55,7 @@ with gr.Blocks() as demo:
 
     def on_submit_click(user_input, db_id_dropdown):
         # Use the selected_db_id in your prediction logic
-        sql_list = text2sql(user_input, db_id_dropdown, TABLE_INFO_PATH, DB_PATH)
+        sql_list = text2sql(user_input, db_id_dropdown, TABLE_INFO_PATH)
 
         # Construct the SQL statement as a single string
         sql_stmt = ';'.join(sql_list)

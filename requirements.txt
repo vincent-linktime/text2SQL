@@ -3,4 +3,5 @@ nltk
 openai
 rapidfuzz
 sql_metadata
+sqlparse
 tqdm

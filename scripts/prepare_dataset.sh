@@ -9,15 +9,13 @@ fi
 
 tables=$1
 dataset_path=$2
-db_path=$3
-processed_dataset_path=$4
+processed_dataset_path=$3
 # preprocess test set
 # echo "preprocessing..."
 python src/preprocessing.py \
     --table_path $tables \
     --input_dataset_path $dataset_path \
-    --output_dataset_path "./generate_datasets/preprocessed_data.json" \
-    --db_path "$db_path" \
+    --output_dataset_path "./generate_datasets/preprocessed_data.json" 
 
 # # recall tables
 echo "recall tables..."
