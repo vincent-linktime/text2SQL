@@ -1,0 +1,11 @@
+[
+    {
+        "question": "What is the average, minimum, and maximum age of all singers from France?",
+        "db_id": "concert_singer",
+        "sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'"
+    },{
+        "question": "What are the titles for courses with two prerequisites?",
+        "db_id": "college_2",
+        "sql": "SELECT T1.title FROM course AS T1 JOIN prereq AS T2 ON T1.course_id  =  T2.course_id GROUP BY T2.course_id HAVING count(*)  =  2"
+    }
+]

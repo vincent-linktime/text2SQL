@@ -1,12 +1,23 @@
-import json
+import json, os, time
 import gradio as gr
 from interactive import text2sql
 from utils import convert_table_info
+from knowledge_base import Knowledge_Base
 
 def reset_user_input():
     return gr.update(value='')
 
-TABLE_INFO_PATH = "./data/spider/tables.json"
+TABLE_INFO_PATH = "./data/tables.json"
+output_path = "./generate_datasets"
+isExist = os.path.exists(output_path)
+if not isExist:
+   os.makedirs(output_path)
+
+KB_INPUT_FILE = "./data/QA_SQL.json"
+KB_OUTPUT_FILE = "./generate_datasets/QA_SQL.json"
+# load knowledge base, which is a list of question-sql pairs.
+kb = Knowledge_Base()
+kb.load_data(KB_INPUT_FILE) 
 
 with gr.Blocks() as demo:
     # Function to read JSON file and extract data by db_id
@@ -54,12 +65,21 @@ with gr.Blocks() as demo:
         return data_dict_textbox.update(value=updated_content)
 
     def on_submit_click(user_input, db_id_dropdown):
-        # Use the selected_db_id in your prediction logic
-        sql_list = text2sql(user_input, db_id_dropdown, TABLE_INFO_PATH)
+        # search knowledge base to find questions with 95% similarity 
+        start_time = time.time()
+        sql_stmt = kb.search_data(user_input, db_id_dropdown, 0.95)
+        if sql_stmt is None:
+            
 
-        # Construct the SQL statement as a single string
-        sql_stmt = ';'.join(sql_list)
-        return sql_stmt
+            # Use the selected_db_id in your prediction logic
+            sql_list = text2sql(user_input, db_id_dropdown, TABLE_INFO_PATH)
+
+            # Construct the SQL statement as a single string
+            sql_stmt = ';'.join(sql_list)
+            kb.insert_data(user_input, db_id_dropdown, sql_stmt)
+            kb.dump_data(KB_OUTPUT_FILE)
+        process_time = "processing time: %s seconds" % (time.time() - start_time)
+        return process_time + "\n\n" + sql_stmt
 
     # Textbox to display the response of the input
     response_textbox = gr.Textbox(show_label=False, placeholder="SQL...", lines=5).style(

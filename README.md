@@ -9,6 +9,7 @@ Prepare two files:<br>
 pip install -r requirements.txt
 
 export OPENAI_KEY=your_api_key
+export TOKENIZERS_PARALLELISM=false
 bash batch_process.sh
 ```
 
@@ -38,6 +39,11 @@ Note: The format of each line in test_gold.sql is "sql_statement \t database_nam
 ```
 python src/main.py
 ```
+
+### Knowledge Base
+To enhance the efficiency of the web-based text-to-SQL process, consider augmenting it with a knowledge base containing verified question-SQL pairs. This knowledge base should follow the format specified in data/QA_SQL.json.
+
+The web-based process also generates a knowledge base file, saved as generate_datasets/QA_SQL.json.
 
 ### References
 [C3SQLC3: Zero-shot Text-to-SQL with ChatGPT](https://arxiv.org/pdf/2307.07306.pdf)

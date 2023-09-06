@@ -1,7 +1,8 @@
-gradio
-nltk
-openai
-rapidfuzz
-sql_metadata
-sqlparse
-tqdm
+gradio==3.42.0
+nltk==3.8.1
+openai==0.28.0
+rapidfuzz==3.2.0
+sql_metadata==2.8.0
+sqlparse==0.4.4
+tqdm==4.66.1
+sentence-transformers==2.2.2
